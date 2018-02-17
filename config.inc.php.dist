@@ -1,0 +1,8 @@
+<?php
+// absolute path where your bookmark file is stored
+// you can use %u for the username
+$config['bookmarks_path'] = '/path/to/server/%u/folder/';
+
+// name of the bookmark file
+$config['bookmarks_filename'] = 'bookmarks.html';
+?>
