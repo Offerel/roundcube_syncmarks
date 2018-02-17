@@ -9,7 +9,7 @@
  */
 class ffbookmarks extends rcube_plugin
 {
-	public $task = 'mail';
+	public $task = '*';
 	
 	public function init() {
 		$rcmail = rcmail::get_instance();
