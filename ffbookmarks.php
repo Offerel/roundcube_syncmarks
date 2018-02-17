@@ -1,4 +1,12 @@
 <?php
+/**
+ * Roundcube Notes Plugin
+ *
+ * @version 1.0.0
+ * @author Offerel
+ * @copyright Copyright (c) 2018, Offerel
+ * @license GNU General Public License, version 3
+ */
 class ffbookmarks extends rcube_plugin
 {
 	public $task = 'mail';
