@@ -12,10 +12,13 @@
 	background-color: #EEF3FA;
 	padding-top: 10px;
 	margin-bottom: 10px !important;
-	border-radius: 5px;
-	border: thin solid #b2b8bf;
+	border: 0;
 	font-size: 1.2em;
 	right: 0px;
+	border-bottom-left-radius: 5px;
+	border-top-left-radius: 5px;
+	border-right: unset;
+	white-space: nowrap;
 }
 #bookmarks html { font-family: Verdana, Arial, Helvetica, sans-serif; }
 #bookmarks body, #bookmarks ul, #bookmarks li, #bookmarks p, #bookmarks h1, #bookmarks h2, #bookmarks h3, #bookmarks h4, #bookmarks h5
@@ -30,7 +33,7 @@
 	font-size: 1em;
 	margin: 0 0 1em 0;
 }
-#bookmarks body { font-size: 0.8em; /* Sets base font size to 16px */ }
+#bookmarks body { font-size: 0.8em;}
 
 #bookmarks ol.tree
 {
@@ -75,7 +78,7 @@
 #bookmarks li input + ol
 {
 	background: url(images/toggle-small-expand.png) 40px -2px no-repeat;
-	margin: -0.938em 0 0 -44px; /* 15px */
+	margin: -0.938em 0 0 -44px;
 	height: 1em;
 	text-overflow: ellipsis;
 }
@@ -90,9 +93,9 @@
 #bookmarks li input:checked + ol
 {
 	background: url(images/toggle-small.png) 40px 3px no-repeat;
-	margin: -1.25em 0 0 -44px; /* 20px */
+	margin: -1.25em 0 0 -44px;
 	padding: 1.563em 0 0 80px;
 	height: auto;
 }
-#bookmarks li input:checked + ol > li { display: block; margin: 0 0 0.125em;  /* 2px */}
-#bookmarks li input:checked + ol > li:last-child { margin: 0 0 0.063em; /* 1px */ }
+#bookmarks li input:checked + ol > li { display: block; margin: 0 0 0.125em;}
+#bookmarks li input:checked + ol > li:last-child { margin: 0 0 0.063em;}
