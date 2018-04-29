@@ -5,7 +5,7 @@
 #taskbar a.button-bookmarks:hover span.button-inner,
 #taskbar a.button-bookmarks.button-selected span.button-inner {
 	background: url(images/bookmark_sel.png) 5px 0 no-repeat;
-	background-size: 21px;
+	/* background-size: 21px; */
 }
 #bookmarks {
 	display: block;
