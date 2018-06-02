@@ -7,24 +7,55 @@
 	background: url(images/bookmark_sel.png) 5px 0 no-repeat;
 	/* background-size: 21px; */
 }
+#bookmarkpane {
+	position: absolute;
+	transition: 1s;
+	top: 50px;
+	right: 0;
+	bottom: 0;
+	margin-bottom: 10px;
+	width: 0;
+	z-index: 100;
+}
+#add {
+	background: #e1e1e1;
+	bottom: 0px;
+	position: absolute;
+	height: 25px;
+	width: 100%;
+	border: thin solid rgb(178, 184, 191);
+	right: 0;
+	z-index: 100;
+	border-bottom-left-radius: 5px;
+	border-right: unset;
+	overflow: auto;
+	text-align: center;
+	vertical-align: middle;
+	line-height: 25px;
+	cursor: pointer;
+}
+#add:hover {
+	background: #b7b7b7;
+}
 #bookmarks {
 	display: block;
 	position: absolute;
-	width: 0;
-	bottom: 0;
+	width: 100%;
+	bottom: 15px;
 	transition: 1s;
 	overflow: auto;
-	top: 60px;
+	top: 0;
 	background-color: #EEF3FA;
 	padding-top: 10px;
 	margin-bottom: 10px !important;
-	border: 0;
 	font-size: 1.2em;
 	right: 0px;
 	border-bottom-left-radius: 5px;
 	border-top-left-radius: 5px;
-	border-right: unset;
 	white-space: nowrap;
+	border: thin solid #b2b8bf;
+	border-right: unset;
+	border-bottom: unset;
 }
 #bookmarks html { font-family: Verdana, Arial, Helvetica, sans-serif; }
 #bookmarks body, #bookmarks ul, #bookmarks li, #bookmarks p, #bookmarks h1, #bookmarks h2, #bookmarks h3, #bookmarks h4, #bookmarks h5 {
