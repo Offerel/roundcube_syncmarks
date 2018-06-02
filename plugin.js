@@ -30,10 +30,9 @@ function bookmarks_cmd() {
 
 function add_url() {
 	var url = prompt(rcmail.gettext('bookmarks_url', 'ffbookmarks'));
-    //if (url.length > 0 && url.startsWith("http")) {
-	if (url.length > 0) {
-		//rcmail.addEventListener('plugin.somecallback', some_callback_function);
-		rcmail.http_post('ffbookmarks/add_url', '_url=' + url);
+    if (url.length > 0) {
+		if(url.startsWith("http") || url.startsWith("ftp"))
+			rcmail.http_post('ffbookmarks/add_url', '_url=' + url);
     }
 }
 
