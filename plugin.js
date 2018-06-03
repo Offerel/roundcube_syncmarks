@@ -46,6 +46,8 @@ function add_url() {
 }
 
 function urladded(response) {
-	location.reload();
+	//location.reload();
 	console.log(response.message);
+	if(response.data.length > 0)
+		$('#bookmarkpane').html(response.data);
 }
