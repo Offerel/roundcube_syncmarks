@@ -1,7 +1,7 @@
 /**
  * Roundcube Firefox Bookmarks Plugin
  *
- * @version 1.2.1
+ * @version 2.0.0
  * @author Offerel
  * @copyright Copyright (c) 2018, Offerel
  * @license GNU General Public License, version 3
@@ -20,12 +20,21 @@ $(document).ready(function() {
 	})
 });
 
-function b_menu(event, bookmark) {
+function h_del(event, bookmark) {
 	event.preventDefault();
 	var question = rcmail.gettext('bookmarks_del', 'ffbookmarks').replace('%b%', bookmark.innerHTML);
 	if(confirm(question) == true) {
 		var url = encodeURIComponent(bookmark.href);
 		rcmail.http_post('ffbookmarks/del_url', '_url=' + url);
+	}
+}
+
+function j_del(event, bookmark) {
+	event.preventDefault();
+	var question = rcmail.gettext('bookmarks_del', 'ffbookmarks').replace('%b%', bookmark.innerHTML);
+	if(confirm(question) == true) {
+		var url = encodeURIComponent(bookmark.href);
+		//rcmail.http_post('ffbookmarks/del_url', '_url=' + url);
 	}
 } 
 
@@ -42,6 +51,14 @@ function add_url() {
     if (url.length > 0) {
 		if(url.startsWith("http") || url.startsWith("ftp"))
 			rcmail.http_post('ffbookmarks/add_url', '_url=' + url);
+    }
+}
+
+function jadd_url() {
+	var url = encodeURIComponent(prompt(rcmail.gettext('bookmarks_url', 'ffbookmarks')));
+    if (url.length > 0) {
+		if(url.startsWith("http") || url.startsWith("ftp"))
+			//rcmail.http_post('ffbookmarks/add_url', '_url=' + url);
     }
 }
 
