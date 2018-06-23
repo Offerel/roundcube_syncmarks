@@ -37,30 +37,65 @@ class ffbookmarks extends rcube_plugin
 	function del_url() {
 		$rcmail = rcmail::get_instance();
 		$this->load_config();
-		$new_url = rcube_utils::get_input_value('_url', rcube_utils::INPUT_POST);
 		$bmfile = str_replace("%u", $rcmail->user->get_username(), $rcmail->config->get('bookmarks_path', false).$rcmail->config->get('bookmarks_filename', false));
 		$del_url = rcube_utils::get_input_value('_url', rcube_utils::INPUT_POST);
+		$format = rcube_utils::get_input_value('_format', rcube_utils::INPUT_POST);
 		
-		if(file_exists($bmfile)) {
-			$bookmarks = file_get_contents($bmfile);
-			$start = strrpos($bookmarks, $del_url) - 13;
-			$line_end = strpos($bookmarks,"\n",$start);
-			$new_line = strpos($bookmarks,"<",$line_end);
-			
-			switch(substr($bookmarks,$new_line,3)) {
-				case "<DD": $end = strpos($bookmarks,"\n",$new_line); break;
-				case "<DT": $end = strpos($bookmarks,"\n",$start); break;
-				default: $end = strpos($bookmarks,"\n",$start); break;
-			}
-			
-			$length = $end - $start;
-			$entry = substr($bookmarks,$start,$length);
-			$bookmarks = str_replace($entry,"",$bookmarks);
-			
-			file_put_contents($bmfile, $bookmarks);
-			$bookmarks = parse_bookmarks($bookmarks, time(), $this->gettext('bookmarks_new'));
+		if($format == "html") {
+			if(file_exists($bmfile)) {
+				$bookmarks = file_get_contents($bmfile);
+				$start = strrpos($bookmarks, $del_url) - 13;
+				$line_end = strpos($bookmarks,"\n",$start);
+				$new_line = strpos($bookmarks,"<",$line_end);
+				
+				switch(substr($bookmarks,$new_line,3)) {
+					case "<DD": $end = strpos($bookmarks,"\n",$new_line); break;
+					case "<DT": $end = strpos($bookmarks,"\n",$start); break;
+					default: $end = strpos($bookmarks,"\n",$start); break;
+				}
+				
+				$length = $end - $start;
+				$entry = substr($bookmarks,$start,$length);
+				$bookmarks = str_replace($entry,"",$bookmarks);
+				
+				file_put_contents($bmfile, $bookmarks);
+				$bookmarks = parse_bookmarks($bookmarks, time(), $this->gettext('bookmarks_new'));
 
-			$rcmail->output->command('ffbookmarks/urladded', array('message' => "Bookmark deleted", 'data' => $bookmarks));
+				$rcmail->output->command('ffbookmarks/urladded', array('message' => "Bookmark deleted", 'data' => $bookmarks));
+			}
+		}
+		elseif($format == "json") {
+			$path = $rcmail->config->get('bookmarks_path', false);
+			$filename = $rcmail->config->get('bookmarks_filename', false);
+			$url = $path."/".$filename;
+			$context = stream_context_create(array ('http' => array ('header' => 'Authorization: Basic '.base64_encode($rcmail->user->get_username().":".$rcmail->get_user_password()))));
+			$bookmarks = file_get_contents($url, false, $context);
+			
+			$offset = mb_strlen($bookmarks)-mb_strrpos($bookmarks, $del_url);
+			$startPos = mb_strrpos($bookmarks, ",{", -$offset);
+			$endPos = mb_strpos($bookmarks, "}", $startPos + 1)+1;
+			
+			$nBookmarks = mb_substr($bookmarks,0,$startPos).mb_substr($bookmarks,$endPos);
+			
+			$tempfile = tmpfile();
+			fwrite($tempfile,$nBookmarks);
+			$fstat = fstat($tempfile);
+			$url = $path."/".$filename;
+			$ch = curl_init($url);
+			curl_setopt($ch, CURLOPT_PUT, true);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			$fields = array("id" => 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields));
+			fseek($tempfile,0);
+			curl_setopt($ch, CURLOPT_INFILE, $tempfile);
+			curl_setopt($ch, CURLOPT_INFILESIZE, $fstat['size']);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json','Content-Length: '.$fstat['size']));
+			curl_setopt($ch, CURLOPT_USERPWD, $rcmail->user->get_username().":".$rcmail->get_user_password());  
+			$response = curl_exec($ch);
+			fclose($tempfile);
+			
+			$cmarks = parseJSONMarks($nBookmarks, time(), $this->gettext('bookmarks_new'));
+			$rcmail->output->command('ffbookmarks/urladded', array('message' => "Bookmark deleted", 'data' => $cmarks));
 		}
 	}
 	
@@ -68,55 +103,95 @@ class ffbookmarks extends rcube_plugin
 		$rcmail = rcmail::get_instance();
 		$this->load_config();
 		$new_url = rcube_utils::get_input_value('_url', rcube_utils::INPUT_POST);
-		$bmfile = str_replace("%u", $rcmail->user->get_username(), $rcmail->config->get('bookmarks_path', false).$rcmail->config->get('bookmarks_filename', false));
+		$format = rcube_utils::get_input_value('_format', rcube_utils::INPUT_POST);
+		$path = $rcmail->config->get('bookmarks_path', false);
+		$filename = $rcmail->config->get('bookmarks_filename', false);
+		
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $new_url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_REFERER, $_SERVER['REQUEST_URI']);
+		curl_setopt($ch, CURLOPT_VERBOSE, TRUE);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+		curl_setopt($ch, CURLOPT_MAXREDIRS, 4);
+		curl_setopt($ch, CURLOPT_HTTPGET, TRUE);
 
-		if(file_exists($bmfile)) {
-			$bookmarks = file_get_contents($bmfile);
-			$end = strrpos($bookmarks, "</DL><p>");
-			
-			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, $new_url);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			curl_setopt($ch, CURLOPT_REFERER, $_SERVER['REQUEST_URI']);
-			curl_setopt($ch, CURLOPT_VERBOSE, TRUE);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
-			curl_setopt($ch, CURLOPT_MAXREDIRS, 4);
-			curl_setopt($ch, CURLOPT_HTTPGET, TRUE);
+		$data = curl_exec($ch);		
+		curl_close($ch);
+		
+		$doc = new DOMDocument();
+		@$doc->loadHTML($data);
+		$nodes = $doc->getElementsByTagName('title');
+		$title = $nodes->item(0)->nodeValue;
+		
+		if($format == 'html') {
+			$bmfile = str_replace("%u", $rcmail->user->get_username(), $rcmail->config->get('bookmarks_path', false).$rcmail->config->get('bookmarks_filename', false));
 
-			$data = curl_exec($ch);		
-			curl_close($ch);
+			if(file_exists($bmfile)) {
+				$bookmarks = file_get_contents($bmfile);
+				$end = strrpos($bookmarks, "</DL><p>");
 
-			$doc = new DOMDocument();
-			@$doc->loadHTML($data);
-			$nodes = $doc->getElementsByTagName('title');
-			$title = $nodes->item(0)->nodeValue;
-			
-			if(strlen($title) > 0) {
-				$date = time();
-				$meta_arr = get_meta_tags($new_url);
-				
-				if(strlen($meta_arr['keywords']) > 0){
-					$new_tags = "TAGS=\"".str_replace(" ", ",", $meta_arr['keywords'])."\"";
+				if(strlen($title) > 0) {
+					$date = time();
+					$meta_arr = get_meta_tags($new_url);
+					
+					if(strlen($meta_arr['keywords']) > 0){
+						$new_tags = "TAGS=\"".str_replace(" ", ",", $meta_arr['keywords'])."\"";
+					}
+					else
+						$new_tags = "";
+					
+					$new_bookmark = "\t<DT><A HREF=\"".$new_url."\" ADD_DATE=\"$date\" LAST_MODIFIED=\"$date\" LAST_CHARSET=\"UTF-8\" $new_tags>".trim($title)."</A>";
+					
+					if(strlen($meta_arr['description']) > 0){
+						$new_bookmark = utf8_encode($new_bookmark."\n\t\t<DD>".$meta_arr['description']."\n\t");
+					}
+					
+					$bookmarks = substr_replace($bookmarks, $new_bookmark, $end, 0);
+					file_put_contents($bmfile, $bookmarks);
+					$bookmarks = parse_bookmarks($bookmarks, time(), $this->gettext('bookmarks_new'));
+					
+					$rcmail->output->command('ffbookmarks/urladded', array('message' => 'URL is added.','data' => $bookmarks));
 				}
-				else
-					$new_tags = "";
-				
-				$new_bookmark = "\t<DT><A HREF=\"".$new_url."\" ADD_DATE=\"$date\" LAST_MODIFIED=\"$date\" LAST_CHARSET=\"UTF-8\" $new_tags>".trim($title)."</A>";
-				
-				if(strlen($meta_arr['description']) > 0){
-					$new_bookmark = utf8_encode($new_bookmark."\n\t\t<DD>".$meta_arr['description']."\n\t");
+				else {
+					$rcmail->output->command('ffbookmarks/urladded', array('message' => "Error. Cant add URL"));
 				}
-				
-				$bookmarks = substr_replace($bookmarks, $new_bookmark, $end, 0);
-				file_put_contents($bmfile, $bookmarks);
-				$bookmarks = parse_bookmarks($bookmarks, time(), $this->gettext('bookmarks_new'));
-				
-				$rcmail->output->command('ffbookmarks/urladded', array('message' => 'URL is added.','data' => $bookmarks));
 			}
-			else {
-				$rcmail->output->command('ffbookmarks/urladded', array('message' => "Error. Cant add URL"));
-			}
+		}
+		elseif($format == 'json') {
+			$url = $path."/".$filename;
+			$context = stream_context_create(array ('http' => array ('header' => 'Authorization: Basic '.base64_encode($rcmail->user->get_username().":".$rcmail->get_user_password()))));
+			$bookmarks = file_get_contents($url, false, $context);
+			$offset = strlen($bookmarks)-mb_strrpos($bookmarks, 'unfiled_____');
+			$indexStart = mb_strrpos($bookmarks, "index", -$offset)+7;
+			$index = mb_substr($bookmarks,$indexStart,mb_strpos($bookmarks, ",", $indexStart)-$indexStart);
+
+			$bookmark_str = ",{\"id\":\"".substr(str_shuffle(md5(time())),0,12)."\",\"title\":\"$title\",\"index\":".++$index.",\"dateAdded\":".round(microtime(true) * 1000).",\"type\":\"bookmark\",\"url\":\"$new_url\",\"parentId\":\"unfiled_____\"}";
+			
+			$unfiled_last = '"parentId":"unfiled_____"}';
+			$marker = mb_strrpos($bookmarks, $unfiled_last) + mb_strlen($unfiled_last);
+			$bookmarks = mb_substr($bookmarks,0,$marker).$bookmark_str.mb_substr($bookmarks,$marker);
+			
+			$tempfile = tmpfile();
+			fwrite($tempfile,$bookmarks);
+			$fstat = fstat($tempfile);
+			$url = $path."/".$filename;
+			$ch = curl_init($url);
+			curl_setopt($ch, CURLOPT_PUT, true);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			$fields = array("id" => 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($fields));
+			fseek($tempfile,0);
+			curl_setopt($ch, CURLOPT_INFILE, $tempfile);
+			curl_setopt($ch, CURLOPT_INFILESIZE, $fstat['size']);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json','Content-Length: '.$fstat['size']));
+			curl_setopt($ch, CURLOPT_USERPWD, $rcmail->user->get_username().":".$rcmail->get_user_password());  
+			$response = curl_exec($ch);
+			fclose($tempfile);
+			
+			$cmarks = parseJSONMarks($bookmarks, time(), $this->gettext('bookmarks_new'));
+			$rcmail->output->command('ffbookmarks/urladded', array('message' => 'URL is added.','data' => $cmarks));
 		}
 	}
 
@@ -126,7 +201,6 @@ class ffbookmarks extends rcube_plugin
 		$path = $rcmail->config->get('bookmarks_path', false);
 		$filename = $rcmail->config->get('bookmarks_filename', false);
 		$username = $rcmail->user->get_username();
-
 		$ext = pathinfo($filename, PATHINFO_EXTENSION);
 
 		if($ext === "json") {

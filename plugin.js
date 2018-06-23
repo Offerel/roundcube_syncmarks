@@ -25,7 +25,7 @@ function h_del(event, bookmark) {
 	var question = rcmail.gettext('bookmarks_del', 'ffbookmarks').replace('%b%', bookmark.innerHTML);
 	if(confirm(question) == true) {
 		var url = encodeURIComponent(bookmark.href);
-		rcmail.http_post('ffbookmarks/del_url', '_url=' + url);
+		rcmail.http_post('ffbookmarks/del_url', '_url=' + url + '&_format=html');
 	}
 }
 
@@ -34,7 +34,7 @@ function j_del(event, bookmark) {
 	var question = rcmail.gettext('bookmarks_del', 'ffbookmarks').replace('%b%', bookmark.innerHTML);
 	if(confirm(question) == true) {
 		var url = encodeURIComponent(bookmark.href);
-		//rcmail.http_post('ffbookmarks/del_url', '_url=' + url);
+		rcmail.http_post('ffbookmarks/del_url', '_url=' + url + '&_format=json');
 	}
 } 
 
@@ -49,21 +49,22 @@ function bookmarks_cmd() {
 function add_url() {
 	var url = encodeURIComponent(prompt(rcmail.gettext('bookmarks_url', 'ffbookmarks')));
     if (url.length > 0) {
-		if(url.startsWith("http") || url.startsWith("ftp"))
-			rcmail.http_post('ffbookmarks/add_url', '_url=' + url);
+		if(url.startsWith("http") || url.startsWith("ftp")) {
+			rcmail.http_post('ffbookmarks/add_url', '_url=' + url + '&_format=html');
+		}
     }
 }
 
 function jadd_url() {
 	var url = encodeURIComponent(prompt(rcmail.gettext('bookmarks_url', 'ffbookmarks')));
     if (url.length > 0) {
-		if(url.startsWith("http") || url.startsWith("ftp"))
-			//rcmail.http_post('ffbookmarks/add_url', '_url=' + url);
+		if(url.startsWith("http") || url.startsWith("ftp")) {
+			rcmail.http_post('ffbookmarks/add_url', '_url=' + url + '&_format=json');
+		}
     }
 }
 
 function urladded(response) {
-	//location.reload();
 	console.log(response.message);
 	if(response.data.length > 0)
 		$('#bookmarkpane').html(response.data);
