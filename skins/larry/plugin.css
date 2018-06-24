@@ -36,6 +36,22 @@
 #add:hover {
 	background: #b7b7b7;
 }
+#bheader {
+	background: #e1e1e1;
+	top: 0px;
+	position: absolute;
+	height: 15px;
+	width: 100%;
+	border: thin solid rgb(178, 184, 191);
+	right: 0;
+	z-index: 100;
+	border-top-left-radius: 5px;
+	border-right: unset;
+	overflow: auto;
+	text-align: center;
+	vertical-align: middle;
+	line-height: 15px;
+}
 #bookmarks {
 	display: block;
 	position: absolute;
@@ -43,14 +59,16 @@
 	bottom: 15px;
 	transition: 1s;
 	overflow: auto;
-	top: 0;
+	top: 15px;
 	background-color: #EEF3FA;
 	padding-top: 10px;
 	margin-bottom: 10px !important;
 	font-size: 1.2em;
 	right: 0px;
+	/*
 	border-bottom-left-radius: 5px;
 	border-top-left-radius: 5px;
+	*/
 	white-space: nowrap;
 	border: thin solid #b2b8bf;
 	border-right: unset;
