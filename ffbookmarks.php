@@ -240,10 +240,14 @@ function parseJSONMarks($bookmarks, $bdate, $button) {
 	$jsonMarks = json_decode($bookmarks, true);
 	$bookmarks = "";
 	$bookmarks = makeHTMLTree($jsonMarks);
+	
 	do {
 		$start = strpos($bookmarks,"%ID");
-		$bookmarks = substr_replace($bookmarks, "", $start, 16);
+		$end = strpos($bookmarks,"\n",$start);
+		$len = $end - $start;
+		$bookmarks = substr_replace($bookmarks, "", $start, $len);
 	} while (strpos($bookmarks,"%ID") > 0);
+	
 	$bookmarks = str_replace("<li><label for=\"\"></label><input id=\"\" type=\"checkbox\"><ol>","",$bookmarks);
 	$bookmarks = substr($bookmarks,2,strlen($bookmarks)-12);
 	$bookmarks = "<div id=\"bheader\" >Date: ".date("d.m.Y H:i:s", $bdate)."</div><div id=\"bookmarks\">".$bookmarks."\n</div><div id=\"add\" onclick=\"jadd_url();\">".$button."</div>";
@@ -252,8 +256,12 @@ function parseJSONMarks($bookmarks, $bdate, $button) {
 
 function makeHTMLTree($arr) {
 	static $bookmarks = "";
-
-	if(is_array($arr) && $arr['type'] === 'folder'  ) {
+	
+	if(is_array($arr) && array_key_exists("url", $arr)) {
+		$bookmark = "\t<li class=\"file\"><a title=\"".$arr['title']."\" oncontextmenu=\"j_del(event, this);\" target=\"_blank\" href=\"".$arr['url']."\">".$arr['title']."</a></li>\n%ID".$arr['parentId'];
+		$bookmarks = str_replace("%ID".$arr['parentId'], $bookmark, $bookmarks);
+	}
+	elseif(is_array($arr) && !array_key_exists("url", $arr) && $arr['id'] != "") {
 		$nFolder = "<li><label for=\"".$arr['title']."\">".$arr['title']."</label><input id=\"".$arr['title']."\" type=\"checkbox\"><ol>\n%ID".$arr['id']."\n</ol></li>";
 		$start = strpos($bookmarks, "%ID".$arr['parentId']);
 		if($start > 0) {
@@ -263,10 +271,6 @@ function makeHTMLTree($arr) {
 		else {
 			$bookmarks.= $nFolder;
 		}
-	}
-	elseif(is_array($arr) && $arr['type'] === 'bookmark') {
-		$bookmark = "\t<li class=\"file\"><a title=\"".$arr['title']."\" oncontextmenu=\"j_del(event, this);\" target=\"_blank\" href=\"".$arr['url']."\">".$arr['title']."</a></li>\n%ID".$arr['parentId'];
-		$bookmarks = str_replace("%ID".$arr['parentId'], $bookmark, $bookmarks);
 	}
 	
 	if(is_array($arr)) {
