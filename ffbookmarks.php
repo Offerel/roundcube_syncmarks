@@ -16,8 +16,8 @@ class ffbookmarks extends rcube_plugin
 		
 		$this->add_texts('localization/', true);
 		$this->register_task('ffbookmarks');
-		$this->include_stylesheet($this->local_skin_path().'/plugin.css');
-		$this->include_script('plugin.js');
+		$this->include_stylesheet($this->local_skin_path().'/plugin.min.css');
+		$this->include_script('plugin.min.js');
 		
 		$this->add_button(array(
 			'label'	=> 'ffbookmarks.bookmarks',
