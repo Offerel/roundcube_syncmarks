@@ -1,8 +1,8 @@
 {
-	"name": "offerel/ffbookmarks",
+	"name": "offerel/syncmarks",
 	"description": "Access your Firefox Bookmarks in Roundcube",
 	"keywords": ["bookmarks","plugin","firefox","roundcube"],
-	"homepage": "https://github.com/Offerel/roundcube_ffbookmarks",
+	"homepage": "https://github.com/Offerel/roundcube_syncmarks",
 	"type": "roundcube-plugin",
 	"license": "AGPL-3.0",
 	"authors": [
@@ -12,7 +12,7 @@
 		"role": "Developer"
 	}
 	],
-	"version": "2.0.3",
+	"version": "2.1.0",
 	"repositories": [
 		{
 			"type": "composer",
