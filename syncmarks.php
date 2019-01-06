@@ -2,7 +2,7 @@
 /**
  * Roundcube Bookmarks Plugin
  *
- * @version 2.0.3
+ * @version 2.1.0
  * @author Offerel
  * @copyright Copyright (c) 2018, Offerel
  * @license GNU General Public License, version 3
