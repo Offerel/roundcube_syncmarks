@@ -2,7 +2,7 @@
 /**
  * Roundcube Bookmarks Plugin
  *
- * @version 2.1.0
+ * @version 2.1.1
  * @author Offerel
  * @copyright Copyright (c) 2018, Offerel
  * @license GNU General Public License, version 3
@@ -17,7 +17,8 @@ class syncmarks extends rcube_plugin
 		$this->add_texts('localization/', true);
 		$this->register_task('syncmarks');
 		$this->include_stylesheet($this->local_skin_path().'/plugin.min.css');
-		$this->include_script('plugin.min.js');
+		//$this->include_script('plugin.min.js');
+		$this->include_script('plugin.js');
 		
 		$this->add_button(array(
 			'label'	=> 'syncmarks.bookmarks',
@@ -32,6 +33,45 @@ class syncmarks extends rcube_plugin
 		$this->add_hook('render_page', array($this, 'add_bookmarks'));
 		$this->register_action('add_url', array($this, 'add_url'));
 		$this->register_action('del_url', array($this, 'del_url'));
+		$this->register_action('get_bookmarks', array($this, 'get_bookmarks'));
+	}
+	
+	function get_bookmarks() {
+		$rcmail = rcmail::get_instance();
+		$this->load_config();
+		$path = $rcmail->config->get('bookmarks_path', false);
+		$filename = $rcmail->config->get('bookmarks_filename', false);
+		$username = $rcmail->user->get_username();
+		$password = $rcmail->get_user_password();
+		$ext = pathinfo($filename, PATHINFO_EXTENSION);	
+		$remote_url = $path."/".$filename;
+		$opts = array('http'=>array(
+			'method'=>"GET",
+			'header' => "Authorization: Basic ".base64_encode("$username:$password")                 
+			)
+		);
+		$context = stream_context_create($opts);
+		$bms = file_get_contents($remote_url, false, $context);
+		
+		if($ext === "json") {
+			foreach ($http_response_header as &$value) {
+				if (strpos($value, 'ast-Modified') != 0) {
+					$modified = strtotime(substr($value, 15));
+					break;
+				}
+			}
+			$bms = parseJSONMarks($bms,$modified, $this->gettext('bookmarks_new'));
+		}
+		elseif($ext === "html") {
+			$bmfile = str_replace("%u", $username, $path."/".$filename);
+			if(file_exists($bmfile)) {
+				$bms = file_get_contents($bmfile);
+				$bms = parseHTMLMarks($bms, filemtime($bmfile), $this->gettext('bookmarks_new'));
+			}
+		}
+		
+		$rcmail->output->command('syncmarks/get_bookmarks', array('message' => $ext, 'data' => json_encode($bms)));
+		
 	}
 	
 	function del_url() {
@@ -198,54 +238,21 @@ class syncmarks extends rcube_plugin
 	function add_bookmarks($args) {
 		$rcmail = rcmail::get_instance();
 		$this->load_config();
-		$path = $rcmail->config->get('bookmarks_path', false);
 		$filename = $rcmail->config->get('bookmarks_filename', false);
-		$username = $rcmail->user->get_username();
-		$password = $rcmail->get_user_password();
 		$ext = pathinfo($filename, PATHINFO_EXTENSION);
 
-		if($ext === "json") {
-			$url = $path."/".$filename;
-			$context = stream_context_create(array ('http' => array ('header' => 'Authorization: Basic ' . base64_encode("$username:$password"))));
-			$bookmarks = file_get_contents($url, false, $context);
-			foreach ($http_response_header as &$value) {
-				if (strpos($value, 'ast-Modified') != 0) {
-					$modified = strtotime(substr($value, 15));
-					break;
-				}
-			}
-			$bookmarks = parseJSONMarks($bookmarks,$modified, $this->gettext('bookmarks_new'));
-			$rcmail->output->add_footer("<div id=\"bookmarkpane\">".$bookmarks."</div>");
+		if($ext === "php") {
+			$rcmail->output->add_footer("<div id=\"bookmarkpane\"><iframe id='bmframe' srcdoc=\"\"></iframe></div>");
 			return $args;
 		}
-		elseif($ext === "html") {
-			$bmfile = str_replace("%u", $username, $path.$filename);
-			if(file_exists($bmfile)) {
-				$bookmarks = file_get_contents($bmfile);
-				$bookmarks = parseHTMLMarks($bookmarks, filemtime($bmfile), $this->gettext('bookmarks_new'));
-				$rcmail->output->add_footer("<div id=\"bookmarkpane\">".$bookmarks."</div>");
-				return $args;
-			}
-			else {
-				return false;
-			}
-		}
-		elseif($ext === "php") {
-			$remote_url = $path.$filename;
-			$opts = array('http'=>array(
-				'method'=>"GET",
-				'header' => "Authorization: Basic ".base64_encode("$username:$password")                 
-				)
-			);
-			$context = stream_context_create($opts);
-			$bms = htmlspecialchars(file_get_contents($remote_url, false, $context));
-			$rcmail->output->add_footer("<div id=\"bookmarkpane\"><iframe id='bmframe' srcdoc=\"$bms\"></iframe>");
+		else {
+			$rcmail->output->add_footer("<div id=\"bookmarkpane\"></div>");
 			return $args;
 		}
 	}
 	
 	function bookmarks_cmd() {
-		$this->include_script('plugin.min.js');
+		$this->include_script('plugin.js');
 	}
 }
 

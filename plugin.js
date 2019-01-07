@@ -1,7 +1,7 @@
 /**
  * Roundcube Bookmarks Plugin
  *
- * @version 2.1.0
+ * @version 2.1.1
  * @author Offerel
  * @copyright Copyright (c) 2019, Offerel
  * @license GNU General Public License, version 3
@@ -26,7 +26,7 @@ function j_del(t, o) {
 
 function bookmarks_cmd() {
 	if(document.getElementById("bookmarkpane").clientWidth != "300") {
-		document.getElementById("bookmarkpane").style.width = "300px";
+		rcmail.http_post("syncmarks/get_bookmarks", "_url=2")
 	}
 	else {
 		document.getElementById("bookmarkpane").style.width = "0";
@@ -46,12 +46,21 @@ function jadd_url() {
 function urladded(t) {
     console.log(t.message), 0 < t.data.length && $("#bookmarkpane").html(t.data)
 }
-window.rcmail && rcmail.addEventListener("init", function(t) {}), $(document).ready(function() {
-	/*
-	if(document.getElementById("phppane")) {
-		alert(rcmail.get_user_email());
+
+function get_bookmarks(response) {
+	bookmarks = JSON.parse(response.data);
+
+	if(response.message == 'php') {
+		$('#bmframe').attr('srcdoc',bookmarks);
+		document.getElementById("bookmarkpane").style.width = "300px";
 	}
-	*/
+	else {
+		$('#bookmarkpane').html(bookmarks);
+		document.getElementById("bookmarkpane").style.width = "300px";
+	}
+}
+
+window.rcmail && rcmail.addEventListener("init", function(t) {}), $(document).ready(function() {
     $("#7f3f3c06-5b85-4e7f-b527-d061478e9446").on("click", bookmarks_cmd), document.getElementById("bookmarkpane").addEventListener("click", function(t) {
         "A" == t.target.tagName && bookmarks_cmd()
     })
