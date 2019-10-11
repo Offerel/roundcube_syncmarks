@@ -50,9 +50,10 @@ class syncmarks extends rcube_plugin
 			'header' => "Authorization: Basic ".base64_encode("$username:$password")                 
 			)
 		);
+
 		$context = stream_context_create($opts);
 		$bms = file_get_contents($remote_url, false, $context);
-		
+
 		if($ext === "json") {
 			foreach ($http_response_header as &$value) {
 				if (strpos($value, 'ast-Modified') != 0) {
