@@ -2,7 +2,7 @@
 /**
  * Roundcube Bookmarks Plugin
  *
- * @version 2.1.1
+ * @version 2.1.2
  * @author Offerel
  * @copyright Copyright (c) 2018, Offerel
  * @license GNU General Public License, version 3
@@ -17,7 +17,6 @@ class syncmarks extends rcube_plugin
 		$this->add_texts('localization/', true);
 		$this->register_task('syncmarks');
 		$this->include_stylesheet($this->local_skin_path().'/plugin.min.css');
-		//$this->include_script('plugin.min.js');
 		$this->include_script('plugin.js');
 		
 		$this->add_button(array(
@@ -70,9 +69,8 @@ class syncmarks extends rcube_plugin
 				$bms = parseHTMLMarks($bms, filemtime($bmfile), $this->gettext('bookmarks_new'));
 			}
 		}
-		
+
 		$rcmail->output->command('syncmarks/get_bookmarks', array('message' => $ext, 'data' => json_encode($bms)));
-		
 	}
 	
 	function del_url() {

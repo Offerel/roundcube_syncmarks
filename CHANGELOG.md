@@ -1,3 +1,6 @@
+### v2.1.2
+- Moved the get_bookmarks function from init to click to speed up inital loading
+
 ### v2.1.1
 - Moved the get_bookmarks function from init to click to speed up inital loading
   
