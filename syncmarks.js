@@ -1,9 +1,9 @@
 /**
  * Roundcube Bookmarks Plugin
  *
- * @version 2.1.2
+ * @version 2.2.0
  * @author Offerel
- * @copyright Copyright (c) 2019, Offerel
+ * @copyright Copyright (c) 2020, Offerel
  * @license GNU General Public License, version 3
  */
 function h_del(t, o) {
@@ -60,8 +60,34 @@ function get_bookmarks(response) {
 	}
 }
 
+function get_notifications(response) {
+	let notifications = JSON.parse(response);
+	notifications.forEach(function(notification){
+		show_noti(notification);
+	});
+}
+
+function show_noti(noti) {
+	if (Notification.permission !== 'granted')
+		Notification.requestPermission();
+	else {
+		let notification = new Notification(noti.title, {
+			body: noti.url,
+			icon: './plugins/syncmarks/bookmarks.png',
+			requireInteraction: true
+		});
+		
+		notification.onclick = function() {
+			window.open(noti.url);
+			rcmail.http_post("syncmarks/del_not", '&_nkey=' + noti.nkey);
+		};
+	}
+}
+
 window.rcmail && rcmail.addEventListener("init", function(t) {}), $(document).ready(function() {
     $("#7f3f3c06-5b85-4e7f-b527-d061478e9446").on("click", bookmarks_cmd), document.getElementById("bookmarkpane").addEventListener("click", function(t) {
         "A" == t.target.tagName && bookmarks_cmd()
     })
 })
+
+rcmail.addEventListener('plugin.sendNotifications', get_notifications);
