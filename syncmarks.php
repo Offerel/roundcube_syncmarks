@@ -2,23 +2,19 @@
 /**
  * Roundcube Bookmarks Plugin
  *
- * @version 2.1.1
+ * @version 2.2.0
  * @author Offerel
- * @copyright Copyright (c) 2018, Offerel
+ * @copyright Copyright (c) 2020, Offerel
  * @license GNU General Public License, version 3
  */
 class syncmarks extends rcube_plugin
-{
-	public $task = '?(?!login|logout).*';
-	
+{	
 	public function init() {
 		$rcmail = rcmail::get_instance();
-		
 		$this->add_texts('localization/', true);
 		$this->register_task('syncmarks');
 		$this->include_stylesheet($this->local_skin_path().'/plugin.min.css');
-		//$this->include_script('plugin.min.js');
-		$this->include_script('plugin.js');
+		$this->include_script('syncmarks.js');
 		
 		$this->add_button(array(
 			'label'	=> 'syncmarks.bookmarks',
@@ -31,11 +27,63 @@ class syncmarks extends rcube_plugin
 		), 'taskbar');
 		
 		$this->add_hook('render_page', array($this, 'add_bookmarks'));
+		$this->add_hook('refresh', array($this, 'get_notifications'));
+		$this->add_hook('session_destroy', array($this, 'unset_cookie'));
+		
 		$this->register_action('add_url', array($this, 'add_url'));
 		$this->register_action('del_url', array($this, 'del_url'));
 		$this->register_action('get_bookmarks', array($this, 'get_bookmarks'));
+		$this->register_action('del_not', array($this, 'del_not'));
 	}
 	
+	function unset_cookie() {
+		rcube_utils::setcookie('sycmarks_n', '0', time() - 60);
+	}
+	
+	function get_notifications() {
+		if($_COOKIE['sycmarks_n'] != '1') {
+			$rcmail = rcmail::get_instance();
+			$this->load_config();
+			$path = $rcmail->config->get('bookmarks_path', false);
+			$filename = $rcmail->config->get('bookmarks_filename', false);
+
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $path.$filename.'?gurls=1');
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_REFERER, $_SERVER['REQUEST_URI']);
+			curl_setopt($ch, CURLOPT_VERBOSE, TRUE);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+			curl_setopt($ch, CURLOPT_MAXREDIRS, 4);
+			curl_setopt($ch, CURLOPT_HTTPGET, TRUE);
+			curl_setopt($ch, CURLOPT_USERPWD, $rcmail->user->get_username().":".$rcmail->get_user_password());
+			$data = curl_exec($ch);
+			$rcmail->output->command('plugin.sendNotifications', $data);
+			curl_close($ch);
+			rcube_utils::setcookie('sycmarks_n', '1', 0);
+		}
+	}
+	
+	function del_not() {
+		$rcmail = rcmail::get_instance();
+		$this->load_config();
+		$path = $rcmail->config->get('bookmarks_path', false);
+		$filename = $rcmail->config->get('bookmarks_filename', false);
+		
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $path.$filename.'?durl='.rcube_utils::get_input_value('_nkey', rcube_utils::INPUT_GPC));
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_REFERER, $_SERVER['REQUEST_URI']);
+		curl_setopt($ch, CURLOPT_VERBOSE, TRUE);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+		curl_setopt($ch, CURLOPT_MAXREDIRS, 4);
+		curl_setopt($ch, CURLOPT_HTTPGET, TRUE);
+		curl_setopt($ch, CURLOPT_USERPWD, $rcmail->user->get_username().":".$rcmail->get_user_password());
+		$data = curl_exec($ch);		
+		curl_close($ch);
+	}
+
 	function get_bookmarks() {
 		$rcmail = rcmail::get_instance();
 		$this->load_config();
@@ -50,9 +98,10 @@ class syncmarks extends rcube_plugin
 			'header' => "Authorization: Basic ".base64_encode("$username:$password")                 
 			)
 		);
+
 		$context = stream_context_create($opts);
 		$bms = file_get_contents($remote_url, false, $context);
-		
+
 		if($ext === "json") {
 			foreach ($http_response_header as &$value) {
 				if (strpos($value, 'ast-Modified') != 0) {
@@ -69,9 +118,8 @@ class syncmarks extends rcube_plugin
 				$bms = parseHTMLMarks($bms, filemtime($bmfile), $this->gettext('bookmarks_new'));
 			}
 		}
-		
+
 		$rcmail->output->command('syncmarks/get_bookmarks', array('message' => $ext, 'data' => json_encode($bms)));
-		
 	}
 	
 	function del_url() {
@@ -156,6 +204,7 @@ class syncmarks extends rcube_plugin
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
 		curl_setopt($ch, CURLOPT_MAXREDIRS, 4);
 		curl_setopt($ch, CURLOPT_HTTPGET, TRUE);
+		curl_setopt($ch, CURLOPT_USERPWD, $rcmail->user->get_username().":".$rcmail->get_user_password());
 
 		$data = curl_exec($ch);		
 		curl_close($ch);
@@ -235,19 +284,23 @@ class syncmarks extends rcube_plugin
 		}
 	}
 
-	function add_bookmarks($args) {
+	function add_bookmarks() {
 		$rcmail = rcmail::get_instance();
-		$this->load_config();
-		$filename = $rcmail->config->get('bookmarks_filename', false);
-		$ext = pathinfo($filename, PATHINFO_EXTENSION);
+		$exctasks = array("login","logout");
+		
+		if(!in_array($rcmail->task,$exctasks)) {
+			$this->load_config();
+			$filename = $rcmail->config->get('bookmarks_filename', false);
+			$ext = pathinfo($filename, PATHINFO_EXTENSION);
 
-		if($ext === "php") {
-			$rcmail->output->add_footer("<div id=\"bookmarkpane\"><iframe id='bmframe' srcdoc=\"\"></iframe></div>");
-			return $args;
-		}
-		else {
-			$rcmail->output->add_footer("<div id=\"bookmarkpane\"></div>");
-			return $args;
+			if($ext === "php") {
+				$rcmail->output->add_footer("<div id=\"bookmarkpane\"><iframe id='bmframe'></iframe></div>");
+				return $args;
+			}
+			else {
+				$rcmail->output->add_footer("<div id=\"bookmarkpane\"></div>");
+				return $args;
+			}
 		}
 	}
 	
