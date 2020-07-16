@@ -33,15 +33,16 @@
     background: #f4f4f4;
     top: 0;
     position: absolute;
-    height: 18px;
+    height: 25px;
     width: 100%;
     border: thin solid #d4dbde;
     right: 0;
     border-right: unset;
     text-align: center;
     vertical-align: middle;
-    line-height: 15px;
+    line-height: 25px;
     overflow: hidden;
+	border-top: unset;
 }
 #bookmarks {
     display: block;
@@ -50,9 +51,9 @@
     bottom: 15px;
     transition: 1s;
     overflow: auto;
-    top: 15px;
+    top: 24px;
     background-color: #EEF3FA;
-    padding-top: 10px;
+    padding-top: 0;
     margin-bottom: 10px!important;
     right: 0;
     white-space: nowrap;
@@ -74,6 +75,9 @@
 #bookmarks body {
     color: #000;
     margin: 0;
+}
+#bookmarks h1 {
+	display: none;
 }
 #bookmarks dd {
     display: none;
@@ -103,10 +107,10 @@
     margin-left: -1px!important;
 }
 #bookmarks li.file a {
-    background: url(images/globe.png) 0 0 no-repeat;
+    background: url(images/globe.png) 2px 2px no-repeat;
     background-size: 13px;
     color: #000;
-    padding-left: 21px;
+    padding-left: 20px;
     text-decoration: none;
     display: block;
     white-space: nowrap;
@@ -137,13 +141,13 @@
     padding-left: 1px;
 }
 #bookmarks li label {
-    background: url(images/folder-horizontal.png) 12px 2px no-repeat;
+    background: url(images/folder-horizontal.png) 12px 0 no-repeat;
     cursor: pointer;
     display: block;
     padding-left: 35px;
 }
 #bookmarks li input:checked+ol {
-    background: url(images/toggle-small.png) 40px 3px no-repeat;
+    background: url(images/toggle-small.png) 39px 3px no-repeat;
     margin: -2em 0 0 -44px;
     padding: 1.563em 0 0 80px;
     height: auto;
@@ -154,4 +158,7 @@
 }
 #bookmarks li input:checked+ol>li:last-child {
     margin: 0 0 .063em;
+}
+.listing.iconized tr.syncmarks > td.section::before {
+	content: "\f02e";
 }
