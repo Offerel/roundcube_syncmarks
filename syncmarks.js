@@ -1,26 +1,18 @@
 /**
  * Roundcube Bookmarks Plugin
  *
- * @version 2.2.0
+ * @version 2.2.1
  * @author Offerel
  * @copyright Copyright (c) 2020, Offerel
  * @license GNU General Public License, version 3
  */
-function h_del(t, o) {
+function h_del(t, o, format) {
     t.preventDefault();
-    var e = rcmail.gettext("bookmarks_del", "syncmarks").replace("%b%", o.innerHTML);
+	var e = rcmail.gettext("bookmarks_del", "syncmarks").replace("%b%", o.innerHTML);
     if (1 == confirm(e)) {
-        var r = encodeURIComponent(o.href);
-        rcmail.http_post("syncmarks/del_url", "_url=" + r + "&_format=html")
-    }
-}
-
-function j_del(t, o) {
-    t.preventDefault();
-    var e = rcmail.gettext("bookmarks_del", "syncmarks").replace("%b%", o.innerHTML);
-    if (1 == confirm(e)) {
-        var r = encodeURIComponent(o.href);
-        rcmail.http_post("syncmarks/del_url", "_url=" + r + "&_format=json")
+		let r = encodeURIComponent(o.href);
+		let i = o.attributes['bid']['value'];
+        rcmail.http_post("syncmarks/del_url", "_url=" + r + "&_format=" + format + "&_bid=" + i)
     }
 }
 
@@ -33,14 +25,9 @@ function bookmarks_cmd() {
 	}
 }
 
-function add_url() {
-    var t = encodeURIComponent(prompt(rcmail.gettext("bookmarks_url", "syncmarks")));
-    0 < t.length && (t.startsWith("http") || t.startsWith("ftp")) && rcmail.http_post("syncmarks/add_url", "_url=" + t + "&_format=html")
-}
-
-function jadd_url() {
-    var t = encodeURIComponent(prompt(rcmail.gettext("bookmarks_url", "syncmarks")));
-    0 < t.length && (t.startsWith("http") || t.startsWith("ftp")) && rcmail.http_post("syncmarks/add_url", "_url=" + t + "&_format=json")
+function add_url(format) {
+	var t = encodeURIComponent(prompt(rcmail.gettext("bookmarks_url", "syncmarks")));
+    0 < t.length && (t.startsWith("http") || t.startsWith("ftp")) && rcmail.http_post("syncmarks/add_url", "_url=" + t + "&_format=" + format)
 }
 
 function urladded(t) {
@@ -50,13 +37,29 @@ function urladded(t) {
 function get_bookmarks(response) {
 	bookmarks = JSON.parse(response.data);
 
-	if(response.message == 'php') {
-		$('#bmframe').attr('srcdoc',bookmarks);
-		document.getElementById("bookmarkpane").style.width = "300px";
+	$('#bookmarkpane').html(bookmarks);
+	document.getElementById("bookmarkpane").style.width = "300px";
+}
+
+function en_noti() {
+	if (!("Notification" in window)) {
+		alert("This browser does not support desktop notification");
 	}
-	else {
-		$('#bookmarkpane').html(bookmarks);
-		document.getElementById("bookmarkpane").style.width = "300px";
+	else if (Notification.permission === "granted") {
+		var notification = new Notification("Syncmarks", {
+			body: "Notifications are now enabled for Syncmarks.",
+			icon: './plugins/syncmarks/bookmarks.png'
+		});
+	}
+	else if (Notification.permission !== "denied") {
+		Notification.requestPermission().then(function (permission) {
+			if (permission === "granted") {
+				var notification = new Notification("Syncmarks", {
+					body: "Notifications are now enabled for Syncmarks.",
+					icon: './plugins/syncmarks/bookmarks.png'
+				});
+			}
+		});
 	}
 }
 
