@@ -2,17 +2,18 @@
 /**
  * Roundcube Bookmarks Plugin
  *
- * @version 2.2.1
+ * @version 2.2.2
  * @author Offerel
  * @copyright Copyright (c) 2020, Offerel
  * @license GNU General Public License, version 3
  */
 class syncmarks extends rcube_plugin
-{	
-	public $task = '?(?!login|logout).*';
+{
+	public $task = '?(?!login).*';
 
 	public function init() {
 		$rcmail = rcmail::get_instance();
+		$this->load_config();
 		$this->add_texts('localization/', true);
 		$this->register_task('syncmarks');
 		$this->include_stylesheet($this->local_skin_path().'/plugin.css');
@@ -54,6 +55,7 @@ class syncmarks extends rcube_plugin
 		if ($p['section'] != 'syncmarks') {
             return $p;
 		}
+
 		$rcmail = rcmail::get_instance();
 		$p['blocks']['main']['name']=$this->gettext('mainoptions');
 		$field_id='bms_notifications';
@@ -61,6 +63,9 @@ class syncmarks extends rcube_plugin
 											'onchange' => 'en_noti()',
 											'id'	=> 'bms_notifications',
 											'value' => 1));
+
+		$p['blocks']['main']['options']['bms_noti'] = array('title' => html::label($field_id, $this->gettext('bookmarks_not')),
+															'content' => $input->show(intval($rcmail->config->get('bms_notifications'))));
 		return $p;
 	}
 
@@ -80,8 +85,8 @@ class syncmarks extends rcube_plugin
 	
 	function get_notifications() {
 		$rcmail = rcmail::get_instance();
+		$this->load_config();
 		if($_COOKIE['sycmarks_n'] != '1' && $rcmail->config->get('bms_notifications') == "1") {
-			//$this->load_config();
 			$path = $rcmail->config->get('bookmarks_path', false);
 			$filename = $rcmail->config->get('bookmarks_filename', false);
 
@@ -288,6 +293,7 @@ class syncmarks extends rcube_plugin
 	
 	function add_url() {
 		$rcmail = rcmail::get_instance();
+		$this->load_config();
 		$new_url = rcube_utils::get_input_value('_url', rcube_utils::INPUT_POST);
 		$format = rcube_utils::get_input_value('_format', rcube_utils::INPUT_POST);
 		$path = $rcmail->config->get('bookmarks_path', false);
@@ -387,11 +393,11 @@ class syncmarks extends rcube_plugin
 
 	function add_bookmarks() {
 		$rcmail = rcmail::get_instance();
-		$this->include_script('syncmarks.js');
 		$exctasks = array("login","logout");
 		
 		if(!in_array($rcmail->task,$exctasks)) {
 			$this->load_config();
+			$this->include_script('syncmarks.js');
 			$filename = $rcmail->config->get('bookmarks_filename', false);
 			$ext = pathinfo($filename, PATHINFO_EXTENSION);
 			$rcmail->output->add_footer("<div id=\"bookmarkpane\"></div>");
@@ -450,7 +456,6 @@ function makeHTMLTree($arr) {
 }
 
 function parseHTMLMarks($bookmarks, $bdate, $button, $format='html') {
-	$rcmail = rcmail::get_instance();
 	$bookmarks = preg_replace("/<DD>[^>]*?</i", "<", $bookmarks);
 	$bookmarks = preg_replace("/<DT><H3 [^>]*? PERSONAL_TOOLBAR_FOLDER=\"true\">(.+?)<\/H3>/is", "</ol><H1>$1</H1>", $bookmarks);
 	$bookmarks = preg_replace("/<DT><H3 [^>]*? UNFILED_BOOKMARKS_FOLDER=\"true\">(.+?)<\/H3>/is", "<H1>$1</H1>", $bookmarks);
