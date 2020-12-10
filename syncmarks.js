@@ -18,6 +18,10 @@ function h_del(t, o, format) {
 
 function bookmarks_cmd() {
 	if(document.getElementById("bookmarkpane").clientWidth != "300") {
+		let dv = document.createElement("div");
+		dv.classList.add("db-spinner");
+		dv.id = "db-spinner";
+		document.getElementById("layout").parentNode.appendChild(dv);
 		rcmail.http_post("syncmarks/get_bookmarks", "_url=2")
 	}
 	else {
@@ -37,9 +41,14 @@ function urladded(t) {
 
 function get_bookmarks(response) {
 	bookmarks = JSON.parse(response.data);
-
 	$('#bookmarkpane').html(bookmarks);
 	document.getElementById("bookmarkpane").style.width = "300px";
+	let node = document.getElementById("db-spinner");
+	setTimeout(function() {
+		if (node.parentNode) {
+			node.parentNode.removeChild(node);
+		}
+	}, 700);
 }
 
 function en_noti(elem) {

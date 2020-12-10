@@ -1,5 +1,9 @@
+### v2.2.3
+- Added preloading animation
+  
 ### v2.2.2
 - Fix for notifications
+- Fix for unvisible settings
   
 ### v2.2.0
 - Added notifications for pushed links

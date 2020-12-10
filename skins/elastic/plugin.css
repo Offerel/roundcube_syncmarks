@@ -1,3 +1,36 @@
+.db-spinner {
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	background-color: transparent;
+	border: 10px solid #2229;
+	border-top: 10px solid #03a9f4;
+	border-bottom: 100x solid #03a9f4;
+	-webkit-animation: 1s spin linear infinite;
+	animation: 1s spin linear infinite;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	z-index: 100;
+}
+@-webkit-keyframes spin {
+    from {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    } to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+@keyframes spin {
+    from {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    } to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
 #bmframe{height: 100%;border: 1px solid #bbb;border-top-left-radius: 5px;border-bottom-left-radius: 5px;width: 100%;}
 #taskmenu a.bookmarks::before {
     content: "\f02e"}
