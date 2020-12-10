@@ -1,5 +1,8 @@
+### v2.2.2
+- Fix for notifications
+  
 ### v2.2.0
-- Added notifications for pushed links 
+- Added notifications for pushed links
 
 ### v2.1.2
 - Moved the get_bookmarks function from init to click to speed up inital loading

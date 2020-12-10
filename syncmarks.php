@@ -60,7 +60,7 @@ class syncmarks extends rcube_plugin
 		$p['blocks']['main']['name']=$this->gettext('mainoptions');
 		$field_id='bms_notifications';
 		$input = new html_checkbox(array(	'name'	=> 'bms_notifications',
-											'onchange' => 'en_noti()',
+											'onchange' => 'en_noti(this)',
 											'id'	=> 'bms_notifications',
 											'value' => 1));
 

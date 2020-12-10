@@ -42,26 +42,27 @@ function get_bookmarks(response) {
 	document.getElementById("bookmarkpane").style.width = "300px";
 }
 
-function en_noti() {
-	console.log("test");
-	if (!("Notification" in window)) {
-		alert("This browser does not support desktop notification");
-	}
-	else if (Notification.permission === "granted") {
-		var notification = new Notification("Syncmarks", {
-			body: "Notifications are now enabled for Syncmarks.",
-			icon: './plugins/syncmarks/bookmarks.png'
-		});
-	}
-	else if (Notification.permission !== "denied") {
-		Notification.requestPermission().then(function (permission) {
-			if (permission === "granted") {
-				var notification = new Notification("Syncmarks", {
-					body: "Notifications are now enabled for Syncmarks.",
-					icon: './plugins/syncmarks/bookmarks.png'
-				});
-			}
-		});
+function en_noti(elem) {
+	if(elem.checked) {
+		if (!("Notification" in window)) {
+			alert("This browser does not support desktop notification");
+		}
+		else if (Notification.permission === "granted") {
+			var notification = new Notification("Syncmarks", {
+				body: "Notifications will be enabled for Syncmarks.",
+				icon: './plugins/syncmarks/bookmarks.png'
+			});
+		}
+		else if (Notification.permission !== "denied") {
+			Notification.requestPermission().then(function (permission) {
+				if (permission === "granted") {
+					var notification = new Notification("Syncmarks", {
+						body: "Notifications will be enabled for Syncmarks.",
+						icon: './plugins/syncmarks/bookmarks.png'
+					});
+				}
+			});
+		}
 	}
 }
 
