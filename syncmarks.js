@@ -1,7 +1,7 @@
 /**
  * Roundcube Bookmarks Plugin
  *
- * @version 2.2.2
+ * @version 2.2.4
  * @author Offerel
  * @copyright Copyright (c) 2020, Offerel
  * @license GNU General Public License, version 3
@@ -33,6 +33,11 @@ function add_url(format) {
 	var t = encodeURIComponent(prompt(rcmail.gettext("bookmarks_url", "syncmarks")));
 	console.log(format);
     0 < t.length && (t.startsWith("http") || t.startsWith("ftp")) && rcmail.http_post("syncmarks/add_url", "_url=" + t + "&_format=" + format)
+}
+
+function url_removed(response) {
+	console.log(response.message);
+	document.getElementById("bookmarkpane").style.width = "0";
 }
 
 function urladded(t) {

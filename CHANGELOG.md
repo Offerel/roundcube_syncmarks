@@ -1,3 +1,6 @@
+### v2.2.4
+- Change to http POST
+  
 ### v2.2.3
 - Added preloading animation
   
