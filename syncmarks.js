@@ -1,9 +1,9 @@
 /**
  * Roundcube Bookmarks Plugin
  *
- * @version 2.2.1
+ * @version 2.2.5
  * @author Offerel
- * @copyright Copyright (c) 2020, Offerel
+ * @copyright Copyright (c) 2021, Offerel
  * @license GNU General Public License, version 3
  */
 function h_del(t, o, format) {
@@ -18,6 +18,10 @@ function h_del(t, o, format) {
 
 function bookmarks_cmd() {
 	if(document.getElementById("bookmarkpane").clientWidth != "300") {
+		let dv = document.createElement("div");
+		dv.classList.add("db-spinner");
+		dv.id = "db-spinner";
+		document.getElementById("layout").parentNode.appendChild(dv);
 		rcmail.http_post("syncmarks/get_bookmarks", "_url=2")
 	}
 	else {
@@ -27,7 +31,13 @@ function bookmarks_cmd() {
 
 function add_url(format) {
 	var t = encodeURIComponent(prompt(rcmail.gettext("bookmarks_url", "syncmarks")));
+	console.log(format);
     0 < t.length && (t.startsWith("http") || t.startsWith("ftp")) && rcmail.http_post("syncmarks/add_url", "_url=" + t + "&_format=" + format)
+}
+
+function url_removed(response) {
+	console.log(response.message);
+	document.getElementById("bookmarkpane").style.width = "0";
 }
 
 function urladded(t) {
@@ -36,30 +46,37 @@ function urladded(t) {
 
 function get_bookmarks(response) {
 	bookmarks = JSON.parse(response.data);
-
 	$('#bookmarkpane').html(bookmarks);
 	document.getElementById("bookmarkpane").style.width = "300px";
+	let node = document.getElementById("db-spinner");
+	setTimeout(function() {
+		if (node.parentNode) {
+			node.parentNode.removeChild(node);
+		}
+	}, 700);
 }
 
-function en_noti() {
-	if (!("Notification" in window)) {
-		alert("This browser does not support desktop notification");
-	}
-	else if (Notification.permission === "granted") {
-		var notification = new Notification("Syncmarks", {
-			body: "Notifications are now enabled for Syncmarks.",
-			icon: './plugins/syncmarks/bookmarks.png'
-		});
-	}
-	else if (Notification.permission !== "denied") {
-		Notification.requestPermission().then(function (permission) {
-			if (permission === "granted") {
-				var notification = new Notification("Syncmarks", {
-					body: "Notifications are now enabled for Syncmarks.",
-					icon: './plugins/syncmarks/bookmarks.png'
-				});
-			}
-		});
+function en_noti(elem) {
+	if(elem.checked) {
+		if (!("Notification" in window)) {
+			alert("This browser does not support desktop notification");
+		}
+		else if (Notification.permission === "granted") {
+			var notification = new Notification("Syncmarks", {
+				body: "Notifications will be enabled for Syncmarks.",
+				icon: './plugins/syncmarks/bookmarks.png'
+			});
+		}
+		else if (Notification.permission !== "denied") {
+			Notification.requestPermission().then(function (permission) {
+				if (permission === "granted") {
+					var notification = new Notification("Syncmarks", {
+						body: "Notifications will be enabled for Syncmarks.",
+						icon: './plugins/syncmarks/bookmarks.png'
+					});
+				}
+			});
+		}
 	}
 }
 
