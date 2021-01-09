@@ -1,3 +1,6 @@
+### v2.2.5
+- open folder fix
+  
 ### v2.2.4
 - Change to http POST
   

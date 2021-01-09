@@ -2,9 +2,9 @@
 /**
  * Roundcube Bookmarks Plugin
  *
- * @version 2.2.4
+ * @version 2.2.5
  * @author Offerel
- * @copyright Copyright (c) 2020, Offerel
+ * @copyright Copyright (c) 2021, Offerel
  * @license GNU General Public License, version 3
  */
 class syncmarks extends rcube_plugin
@@ -464,8 +464,8 @@ function parseHTMLMarks($bookmarks, $bdate, $button, $format='html') {
 	$bookmarks = preg_replace("/<DD>[^>]*?</i", "<", $bookmarks);
 	$bookmarks = preg_replace("/<DT><H3 [^>]*? PERSONAL_TOOLBAR_FOLDER=\"true\">(.+?)<\/H3>/is", "</ol><H1>$1</H1>", $bookmarks);
 	$bookmarks = preg_replace("/<DT><H3 [^>]*? UNFILED_BOOKMARKS_FOLDER=\"true\">(.+?)<\/H3>/is", "<H1>$1</H1>", $bookmarks);
-	$bookmarks = preg_replace("/<H1>(.+?)<\/H1>/is", "<li>\n<label for=\"$1\">$1</label><input type=\"checkbox\" id=\"$1\">", $bookmarks);
-	$bookmarks = preg_replace("/<DT><H3\s(.+?)>(.+?)<\/H3>/is", "<li><label for=\"$2\">$2</label><input type=\"checkbox\" id=\"$2\">", $bookmarks);
+	$bookmarks = preg_replace("/<H1>(.+?)<\/H1>/is", "<li>\n<label for=''>$1</label><input type=\"checkbox\" id=\"$1\">", $bookmarks);
+	$bookmarks = preg_replace("/<DT><H3\s(.+?)>(.+?)<\/H3>/is", "<li><label for=''>$2</label><input type=\"checkbox\" id=\"$2\">", $bookmarks);
 	$bookmarks = str_replace("<DT><A HREF=","<li class=\"file\"><A onContextMenu=\"h_del(event, this, '$format');\" target='_blank' HREF=",$bookmarks);
 	$bookmarks = str_replace("</A>","</A></li>",$bookmarks);
 	$bookmarks = preg_replace("/<A (.+?)>(.+?)<\/A>/is", "<a title=\"$2\" $1>$2</a>", $bookmarks);

@@ -175,7 +175,7 @@
 }
 #bookmarks li label {
     background: url(images/folder-horizontal.png) 12px 0 no-repeat;
-    cursor: pointer;
+    /* cursor: pointer; */
     display: block;
     padding-left: 35px;
 }
