@@ -33,69 +33,51 @@
 }
 #bmframe{height: 100%;border: 1px solid #bbb;border-top-left-radius: 5px;border-bottom-left-radius: 5px;width: 100%;}
 #taskmenu a.bookmarks::before {
-    content: "\f02e"}
+    content: "\f02e"
+}
 #bookmarkpane {
     position: absolute;
     transition: 1s;
     top: 58px;
     right: 0;
     bottom: 0;
-    width: 0;
     z-index: 100;
+    box-shadow: -3px 4px 5px 0px rgba(0,0,0,0.1);
 }
 #add {
-    background: #e1e1e1;
-    bottom: 0;
-    position: absolute;
-    height: 25px;
-    width: 100%;
-    border: thin solid #d4dbde;
-    right: 0;
-    z-index: 100;
-    border-right: unset;
-    overflow: hidden;
-    text-align: center;
-    vertical-align: middle;
-    line-height: 23px;
-    cursor: pointer;
+	background: #e1e1e1;
+	position: relative;
+	height: 25px;
+	width: 300px;
+	border: thin solid #d4dbde;
+	z-index: 100;
+	overflow: hidden;
+	text-align: center;
+	vertical-align: middle;
+	line-height: 23px;
+	cursor: pointer;
+	top: calc(100% - 25px);
 }
 #add:hover {
     background: #b7b7b7;
 }
-#bheader {
-    background: #f4f4f4;
-    top: 0;
-    position: absolute;
-    height: 25px;
-    width: 100%;
-    border: thin solid #d4dbde;
-    right: 0;
-    border-right: unset;
-    text-align: center;
-    vertical-align: middle;
-    line-height: 25px;
-    overflow: hidden;
-	border-top: unset;
-}
 #bookmarks {
-    display: block;
-    position: absolute;
-    width: 100%;
-    bottom: 15px;
-    transition: 1s;
-    overflow: auto;
-    top: 24px;
-    background-color: #EEF3FA;
-    padding-top: 0;
-    margin-bottom: 10px!important;
-    right: 0;
-    white-space: nowrap;
-    border: thin solid #d4dbde;
-    border-right: unset;
-    border-bottom: unset;
-    font-family: "Lucida Grande", Verdana, Arial, Helvetica, sans-serif;
-    font-size: 12px;
-    line-height: 16px;
+	display: block;
+	position: absolute;
+	width: 100%;
+	bottom: 15px;
+	transition: 1s;
+	overflow: auto;
+	top: 0;
+	background-color: #eef3fa;
+	padding-top: 0;
+	margin-bottom: 10px !important;
+	right: 0;
+	white-space: nowrap;
+	border-left: thin solid #d4dbde;
+	font-family: "Lucida Grande",Verdana,Arial,Helvetica,sans-serif;
+	font-size: 12px;
+	line-height: 16px;
 }
 #bookmarks html {
     font-family: Verdana, Arial, Helvetica, sans-serif;
@@ -175,9 +157,9 @@
 }
 #bookmarks li label {
     background: url(images/folder-horizontal.png) 12px 0 no-repeat;
-    /* cursor: pointer; */
     display: block;
     padding-left: 35px;
+        cursor: pointer;
 }
 #bookmarks li input:checked+ol {
     background: url(images/toggle-small.png) 39px 3px no-repeat;

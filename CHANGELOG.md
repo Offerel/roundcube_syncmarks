@@ -1,5 +1,7 @@
 ### v2.2.5
-- open folder fix
+- Fix to open ambiguous folders
+- Fix for empty push response
+- Removed date header
   
 ### v2.2.4
 - Change to http POST

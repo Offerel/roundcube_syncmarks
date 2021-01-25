@@ -102,8 +102,10 @@ class syncmarks extends rcube_plugin
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			$response = curl_exec($ch);
 			curl_close($ch);
-			$rcmail->output->command('plugin.sendNotifications', $response);
-			rcube_utils::setcookie('sycmarks_n', '1', 0);
+			if($response != "") {
+				$rcmail->output->command('plugin.sendNotifications', $response);
+				rcube_utils::setcookie('sycmarks_n', '1', 0);
+			}
 		}
 	}
 	
@@ -146,19 +148,13 @@ class syncmarks extends rcube_plugin
 			);
 			$context = stream_context_create($opts);
 			$bms = file_get_contents($remote_url, false, $context);
-			foreach ($http_response_header as &$value) {
-				if (strpos($value, 'ast-Modified') != 0) {
-					$modified = strtotime(substr($value, 15));
-					break;
-				}
-			}
-			$bms = parseJSONMarks($bms,$modified, $this->gettext('bookmarks_new'));
+			$bms = parseJSONMarks($bms, $this->gettext('bookmarks_new'));
 		}
 		elseif($ext === "html") {
 			$bmfile = str_replace("%u", $username, $path."/".$filename);
 			if(file_exists($bmfile)) {
 				$bms = file_get_contents($bmfile);
-				$bms = parseHTMLMarks($bms, filemtime($bmfile), $this->gettext('bookmarks_new'));
+				$bms = parseHTMLMarks($bms, $this->gettext('bookmarks_new'));
 			}
 		}
 		elseif($ext === "php") {
@@ -177,12 +173,9 @@ class syncmarks extends rcube_plugin
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $sdata);
 			curl_setopt($ch, CURLOPT_USERPWD, $username.":".$password);
 			$rdata = curl_exec($ch);
-			$lsnc = array('caction' => 'lsnc');
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $lsnc);
-			$tdata = curl_exec($ch);
 			curl_close($ch);
 			
-			$bms = parseHTMLMarks($rdata, round($tdata / 1000), $this->gettext('bookmarks_new'), 'php');
+			$bms = parseHTMLMarks($rdata, $this->gettext('bookmarks_new'), 'php');
 		}
 
 		$rcmail->output->command('syncmarks/get_bookmarks', array('message' => $ext, 'data' => json_encode($bms)));
@@ -249,7 +242,7 @@ class syncmarks extends rcube_plugin
 			$response = curl_exec($ch);
 			fclose($tempfile);
 			
-			$cmarks = parseJSONMarks($nBookmarks, time(), $this->gettext('bookmarks_new'));
+			$cmarks = parseJSONMarks($nBookmarks, $this->gettext('bookmarks_new'));
 			$rcmail->output->command('syncmarks/urladded', array('message' => "Bookmark deleted", 'data' => $cmarks));
 		}
 		elseif($format == "php") {
@@ -415,7 +408,7 @@ class syncmarks extends rcube_plugin
 	}
 }
 
-function parseJSONMarks($bookmarks, $bdate, $button) {
+function parseJSONMarks($bookmarks, $button) {
 	$jsonMarks = json_decode($bookmarks, true);
 	$bookmarks = "";
 	$bookmarks = makeHTMLTree($jsonMarks);
@@ -429,7 +422,7 @@ function parseJSONMarks($bookmarks, $bdate, $button) {
 	
 	$bookmarks = str_replace("<li><label for=\"\"></label><input id=\"\" type=\"checkbox\"><ol>","",$bookmarks);
 	$bookmarks = substr($bookmarks,2,strlen($bookmarks)-12);
-	$bookmarks = "<div id=\"bheader\" >Date: ".date("d.m.Y H:i:s", $bdate)."</div><div id=\"bookmarks\">".$bookmarks."\n</div><div id=\"add\" onclick=\"add_url('$format');\">".$button."</div>";
+	$bookmarks = "<div id=\"bookmarks\">".$bookmarks."\n</div><div id=\"add\" onclick=\"add_url('$format');\">".$button."</div>";
 	return $bookmarks;
 }
 
@@ -460,20 +453,29 @@ function makeHTMLTree($arr) {
 	return $bookmarks;
 }
 
-function parseHTMLMarks($bookmarks, $bdate, $button, $format='html') {
+function parseHTMLMarks($bookmarks, $button, $format='html') {
 	$bookmarks = preg_replace("/<DD>[^>]*?</i", "<", $bookmarks);
 	$bookmarks = preg_replace("/<DT><H3 [^>]*? PERSONAL_TOOLBAR_FOLDER=\"true\">(.+?)<\/H3>/is", "</ol><H1>$1</H1>", $bookmarks);
 	$bookmarks = preg_replace("/<DT><H3 [^>]*? UNFILED_BOOKMARKS_FOLDER=\"true\">(.+?)<\/H3>/is", "<H1>$1</H1>", $bookmarks);
-	$bookmarks = preg_replace("/<H1>(.+?)<\/H1>/is", "<li>\n<label for=''>$1</label><input type=\"checkbox\" id=\"$1\">", $bookmarks);
-	$bookmarks = preg_replace("/<DT><H3\s(.+?)>(.+?)<\/H3>/is", "<li><label for=''>$2</label><input type=\"checkbox\" id=\"$2\">", $bookmarks);
+	$bookmarks = preg_replace("/<H1>(.+?)<\/H1>/is", "<li>\n<label >$1</label><input type=\"checkbox\" id=\"$1\">", $bookmarks);
+	$bookmarks = preg_replace("/<DT><H3\s(.+?)>(.+?)<\/H3>/is", "<li><label >$2</label><input type=\"checkbox\" id=\"$2\">", $bookmarks);
 	$bookmarks = str_replace("<DT><A HREF=","<li class=\"file\"><A onContextMenu=\"h_del(event, this, '$format');\" target='_blank' HREF=",$bookmarks);
 	$bookmarks = str_replace("</A>","</A></li>",$bookmarks);
 	$bookmarks = preg_replace("/<A (.+?)>(.+?)<\/A>/is", "<a title=\"$2\" $1>$2</a>", $bookmarks);
 	$bookmarks = str_replace("<DL><p>","<ol>",$bookmarks);
 	$bookmarks = str_replace("</DL><p>","</ol>",$bookmarks);
 	$bookmarks = str_replace("</DL>","</ol>",$bookmarks);
-	$bookmarks = "<div id=\"bheader\" >Date: ".date("d.m.Y H:i:s", $bdate)."</div><div id=\"bookmarks\">".$bookmarks."</div><div id=\"add\" onclick=\"add_url('$format');\">".$button."</div>";
-	
+	$bookmarks = "<div id=\"bookmarks\">".$bookmarks."</div><div id=\"add\" onclick=\"add_url('$format');\">".$button."</div>";
+	$bookmarks.= $bookmarks."<script>
+		document.querySelectorAll('#bookmarks li label').forEach(function(folder){
+			folder.addEventListener('click',function(e){
+				if(e.target.nextElementSibling.checked == true)
+					e.target.nextElementSibling.checked = false;
+				else
+					e.target.nextElementSibling.checked = true;
+			});
+		});
+	</script>";
 	return $bookmarks;
 }
 ?>
