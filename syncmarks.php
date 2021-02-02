@@ -123,7 +123,7 @@ class syncmarks extends rcube_plugin
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $path.$filename);
 		curl_setopt($ch, CURLOPT_USERPWD, $rcmail->user->get_username().":".$rcmail->get_user_password());
-		curl_setopt($ch, CURLOPT_HTTPPOST, TRUE);
+		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $sdata);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		$data = curl_exec($ch);		
