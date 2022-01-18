@@ -6,6 +6,6 @@ This plugins works also with Bookmark Export's from Firefox, Internet Explorer a
 
 # [Changelog](CHANGELOG.md)
 
-# [Installation](../../wiki/Installation)
+# [Installation](../../../wiki/Installation)
 
-# [FAQ](wiki/FAQ)
+# [FAQ](../../../wiki/FAQ)
