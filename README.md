@@ -4,8 +4,8 @@ With this Roundcube plugin you can access your Browsers Bookmarks from within Ro
 **Browser Support**
 This plugins works also with Bookmark Export's from Firefox, Internet Explorer and Google Chrome Browser as html file. In both browsers, the exported bookmark file seems to be compatible with this plugin. However, since I didn't use Internet Explorer or Chrome, I can't tell you if there is a way to export these bookmarks automatically. Maybe there are scripts, add-ons or advanced settings. The only reasonably comfortable way I found is in Firefox. This is described in detail in the [FAQ](../../wiki/FAQ). 
 
-# [Changelog](../../wiki/Changelog)
+# [Changelog](CHANGELOG.md)
 
-# [Installation](../../wiki/Installation)
+# [Installation](wiki/Installation)
 
-# [FAQ](../../wiki/FAQ)
+# [FAQ](wiki/FAQ)
