@@ -149,17 +149,15 @@ class syncmarks extends rcube_plugin
 			$context = stream_context_create($opts);
 			$bms = file_get_contents($remote_url, false, $context);
 			$bms = parseJSONMarks($bms, $this->gettext('bookmarks_new'));
-		}
-		elseif($ext === "html") {
+		} elseif($ext === "html") {
 			$bmfile = str_replace("%u", $username, $path."/".$filename);
 			if(file_exists($bmfile)) {
 				$bms = file_get_contents($bmfile);
 				$bms = parseHTMLMarks($bms, $this->gettext('bookmarks_new'));
 			}
-		}
-		elseif($ext === "php") {
+		} elseif($ext === "php") {
 			$sdata = array(
-				'caction' => 'fexport',
+				'caction' => 'export',
 				'type' => 'html'
 			);
 			$ch = curl_init();
@@ -174,7 +172,6 @@ class syncmarks extends rcube_plugin
 			curl_setopt($ch, CURLOPT_USERPWD, $username.":".$password);
 			$rdata = curl_exec($ch);
 			curl_close($ch);
-			
 			$bms = parseHTMLMarks($rdata, $this->gettext('bookmarks_new'), 'php');
 		}
 
@@ -278,7 +275,7 @@ class syncmarks extends rcube_plugin
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
 		curl_setopt($ch, CURLOPT_MAXREDIRS, 4);
 		curl_setopt($ch, CURLOPT_HTTPGET, TRUE);
-		$data = curl_exec($ch);		
+		$data = curl_exec($ch);
 		curl_close($ch);
 		
 		$doc = new DOMDocument();
@@ -432,24 +429,22 @@ function makeHTMLTree($arr) {
 	if(is_array($arr) && array_key_exists("url", $arr)) {
 		$bookmark = "\t<li class=\"file\"><a title=\"".$arr['title']."\" oncontextmenu=\"h_del(event, this, 'json');\" target=\"_blank\" href=\"".$arr['url']."\">".$arr['title']."</a></li>\n%ID".$arr['parentId'];
 		$bookmarks = str_replace("%ID".$arr['parentId'], $bookmark, $bookmarks);
-	}
-	elseif(is_array($arr) && !array_key_exists("url", $arr) && $arr['id'] != "") {
+	} elseif(is_array($arr) && !array_key_exists("url", $arr) && $arr['id'] != "") {
 		$nFolder = "<li><label for=\"".$arr['title']."\">".$arr['title']."</label><input id=\"".$arr['title']."\" type=\"checkbox\"><ol>\n%ID".$arr['id']."\n</ol></li>";
 		$start = strpos($bookmarks, "%ID".$arr['parentId']);
 		if($start > 0) {
 			$nFolder = "\t".$nFolder."\n%ID".$arr['parentId'];
 			$bookmarks = str_replace("%ID".$arr['parentId'], $nFolder, $bookmarks);
-		}
-		else {
+		} else {
 			$bookmarks.= $nFolder;
 		}
 	}
 	
 	if(is_array($arr)) {
-    foreach($arr as $k => $v) {
-        makeHTMLTree($v);
-    }
-}
+		foreach($arr as $k => $v) {
+			makeHTMLTree($v);
+		}
+	}
 	return $bookmarks;
 }
 
