@@ -53,7 +53,7 @@ function get_bookmarks(response) {
 		if (node.parentNode) {
 			node.parentNode.removeChild(node);
 		}
-	}, 700);
+	}, 400);
 }
 
 function en_noti(elem) {
@@ -107,7 +107,8 @@ function show_noti(noti) {
 window.rcmail && rcmail.addEventListener("init", function(t) {}), $(document).ready(function() {
     $("#7f3f3c06-5b85-4e7f-b527-d061478e9446").on("click", bookmarks_cmd), document.getElementById("bookmarkpane").addEventListener("click", function(t) {
         "A" == t.target.tagName && bookmarks_cmd()
-    })
+	})
+	
 })
 
 rcmail.addEventListener('plugin.sendNotifications', get_notifications);

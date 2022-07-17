@@ -1,11 +1,25 @@
+<<<<<<< HEAD
 # Browser Bookmarks Plugin (Roundcube)
-With this Roundcube plugin you can access your Browsers Bookmarks from within Roundcube. You can use the Browser Plugin/WebExtension to automatically sync your bookmarks, every time you create, edit or remove a bookmark in your Browser. I have created a extension for [Firefox](https://addons.mozilla.org/addon/syncmarks/), released at Firefox AddOns, a [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/syncmarks/ffobakhdlfhmnnkmimkbnbmnplihhphg) version and a Chromium version for all other Chromium based browsers, available from the [Release Pages](https://codeberg.org/Offerel/SyncMarks-Extension/releases), which is not officially in the Chrome Store, since a fee of 5$ is needed to publish a free exentsion.
+With this plugin you can access your Browsers Bookmarks inside Roundcube. You can use this with 2 different ways. First, you can use Firefox to automatically save a bookmarks.htm every time you close the browser and upload this to your Roundcube installation. The other, more simple way is it to use the companion Browser extension. There is one extension for Firefox available, released officially at [AMO (Firefox AddOns)](https://addons.mozilla.org/addon/davmarks/) and the a Chrome version, which is not officially in the Chrome Store, since a fee of 5$ is needed to publish a free exentsion. However you can get the Chrome variant at my Github repository in the [Chrome branch](https://github.com/Offerel/firefox_davmarks/tree/chrome).
 
 **Browser Support**
-This plugins works also with Bookmark Export's from Firefox, Internet Explorer and Google Chrome Browser as html file. In both browsers, the exported bookmark file seems to be compatible with this plugin. However, since I didn't use Internet Explorer or Chrome, I can't tell you if there is a way to export these bookmarks automatically. Maybe there are scripts, add-ons or advanced settings. The only reasonably comfortable way I found is in Firefox. This is described in detail in the [FAQ](../../wiki/FAQ). 
+This plugins works also with Bookmark Export's from Firefox, Internet Explorer and Google Chrome Browser as html file. As an alternative you could use one of the 2 AddOn Extension i mentioned earlier. In both browsers, the exported bookmark file seems to be compatible with this plugin. However, since I didn't use Internet Explorer or Chrome, I can't tell you if there is a way to export these bookmarks automatically. Maybe there are scripts, add-ons or advanced settings. The only reasonably comfortable way I found is in Firefox. This is described in detail in the [FAQ](../../wiki/FAQ). 
 
 # [Changelog](../../wiki/Changelog)
 
 # [Installation](../../wiki/Installation)
 
 # [FAQ](../../wiki/FAQ)
+=======
+# Browser Bookmarks Plugin (Roundcube)
+With this Roundcube plugin you can access your Browsers Bookmarks from within Roundcube. You can use the Browser Plugin/WebExtension to automatically sync your bookmarks, every time you create, edit or remove a bookmark in your Browser. I have created a extension for [Firefox](https://addons.mozilla.org/addon/syncmarks/), released at Firefox AddOns, a [Microsoft Edge](https://microsoftedge.microsoft.com/addons/detail/syncmarks/ffobakhdlfhmnnkmimkbnbmnplihhphg) version and a Chromium version for all other Chromium based browsers, available from the [Release Pages](https://codeberg.org/Offerel/SyncMarks-Extension/releases), which is not officially in the Chrome Store, since a fee of 5$ is needed to publish a free exentsion.
+
+**Browser Support**
+This plugins works also with Bookmark Export's from Firefox, Internet Explorer and Google Chrome Browser as html file. In both browsers, the exported bookmark file seems to be compatible with this plugin. However, since I didn't use Internet Explorer or Chrome, I can't tell you if there is a way to export these bookmarks automatically. Maybe there are scripts, add-ons or advanced settings. The only reasonably comfortable way I found is in Firefox. This is described in detail in the [FAQ](../../wiki/FAQ). 
+
+# [Changelog](CHANGELOG.md)
+
+# [Installation](../../../wiki/Installation)
+
+# [FAQ](../../../wiki/FAQ)
+>>>>>>> 84d455d69310d9bf1eea9190df2dca74ba65e6b3
