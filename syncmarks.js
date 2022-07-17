@@ -1,9 +1,9 @@
 /**
  * Roundcube Bookmarks Plugin
  *
- * @version 2.2.5
+ * @version 2.2.6
  * @author Offerel
- * @copyright Copyright (c) 2021, Offerel
+ * @copyright Copyright (c) 2022, Offerel
  * @license GNU General Public License, version 3
  */
 function h_del(t, o, format) {

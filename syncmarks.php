@@ -2,9 +2,9 @@
 /**
  * Roundcube Bookmarks Plugin
  *
- * @version 2.2.5
+ * @version 2.2.6
  * @author Offerel
- * @copyright Copyright (c) 2021, Offerel
+ * @copyright Copyright (c) 2022, Offerel
  * @license GNU General Public License, version 3
  */
 class syncmarks extends rcube_plugin
@@ -16,7 +16,6 @@ class syncmarks extends rcube_plugin
 		$this->load_config();
 		$this->add_texts('localization/', true);
 		$this->register_task('syncmarks');
-		$this->include_stylesheet($this->local_skin_path().'/plugin.css');
 		
 		$this->add_button(array(
 			'label'	=> 'syncmarks.bookmarks',
@@ -27,6 +26,10 @@ class syncmarks extends rcube_plugin
 			'innerclass'=> 'button-inner',
 			'type'		=> 'link'
 		), 'taskbar');
+
+		if($rcmail->task == 'caldavzap') {
+			$this->include_stylesheet($this->local_skin_path().'/plugin.css');
+		}
 
 		if($rcmail->task == 'settings') {
 			$this->add_hook('preferences_sections_list', array($this, 'bms_preferences_sections_list'));
